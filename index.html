@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Chauffage DZ</title>
+    <style>
+        /* Variables et Base */
+        :root {
+            --primary-color: #007B83;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg-color); 
+            padding: 15px; 
+            color: #333; 
+        }
+
+        /* Cartes */
+        .card { 
+            background: var(--card-bg); 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 12px rgba(0, 123, 131, 0.15); 
+            margin-bottom: 20px; 
+            border-top: 5px solid var(--primary-color); 
+        }
+
+        h2 { 
+            color: var(--primary-color); 
+            text-align: center; 
+            margin-top: 0; 
+            text-transform: uppercase; 
+            font-size: 1.2em; 
+        }
+
+        .grid-3 { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); 
+            gap: 10px; 
+        }
+
+        label { 
+            display: block; 
+            margin: 12px 0 5px; 
+            font-weight: bold; 
+            font-size: 0.9em; 
+            color: var(--primary-color); 
+        }
+
+        /* Champs de saisie - CORRECTION COULEUR CHIFFRES */
+        select, input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+            background: #fafafa; 
+            color: var(--primary-color) !important; /* Force la couleur des chiffres */
+            font-weight: bold;
+        }
+
+        /* Champs en lecture seule (Surface/Volume/DeltaT) */
+        input[readonly] { 
+            background: #e9f7ef; 
+            color: var(--primary-color) !important; 
+            -webkit-text-fill-color: var(--primary-color); /* Pour iOS */
+            cursor: not-allowed; 
+            border: 1px solid var(--primary-color); 
+        }
+
+        /* Bouton */
+        button { 
+            width: 100%; 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-top: 20px; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+
+        button:hover { 
+            filter: brightness(1.1); 
+        }
+
+        /* Résultats */
+        .result-box { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            text-align: center; 
+        }
+        
+        /* Correction pour les textes blancs dans la boîte de résultat */
+        .result-box h1, .result-box h2, .result-box p, .result-box strong {
+            color: white !important;
+        }
+
+        .piece-item { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            border-left: 5px solid var(--primary-color); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+        }
+
+        .badge { 
+            background: var(--primary-color); 
+            color: white; 
+            padding: 4px 10px; 
+            border-radius: 4px; 
+            font-size: 0.9em; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🛠️ CALCULS PLOMBERIE</h2>
+        <h3 style="text-align:center; color: var(--primary-color); margin-bottom: 20px;">Calcul Nombre d'Éléments Radiateur</h3>
+        
+        <label>Wilaya (Sélectionnez pour T/mini)</label>
+        <select id="wilaya" onchange="actualiserTemp()">
+            <option value="5">01 - Adrar (5°C)</option>
+            <option value="5">02 - Chlef (5°C)</option>
+            <option value="-2">03 - Laghouat (-2°C)</option>
+            <option value="-1">04 - Oum El Bouaghi (-1°C)</option>
+            <option value="-2">05 - Batna (-2°C)</option>
+            <option value="-3">06 - Béjaïa (-3°C)</option>
+            <option value="-1">07 - Biskra (-1°C)</option>
+            <option value="-1">08 - Béchar (-1°C)</option>
+            <option value="-1">09 - Blida (-1°C)</option>
+            <option value="-1">10 - Bouira (-1°C)</option>
+            <option value="2">11 - Tamanghasset (2°C)</option>
+            <option value="-1">12 - Tébessa (-1°C)</option>
+            <option value="-1">13 - Tlemcen (-1°C)</option>
+            <option value="-1">14 - Tiaret (-1°C)</option>
+            <option value="5">15 - Tizi Ouzou (5°C)</option>
+            <option value="5">16 - Alger (5°C)</option>
+            <option value="-2">17 - Djelfa (-2°C)</option>
+            <option value="5">18 - Jijel (5°C)</option>
+            <option value="-4">19 - Sétif (-4°C)</option>
+            <option value="-1">20 - Saïda (-1°C)</option>
+            <option value="5">21 - Skikda (5°C)</option>
+            <option value="-1">22 - Sidi Bel Abbès (-1°C)</option>
+            <option value="5">23 - Annaba (5°C)</option>
+            <option value="-1">24 - Guelma (-1°C)</option>
+            <option value="-1">25 - Constantine (-1°C)</option>
+            <option value="0">26 - Médéa (0°C)</option>
+            <option value="5">27 - Mostaganem (5°C)</option>
+            <option value="-1">28 - M'Sila (-1°C)</option>
+            <option value="-1">29 - Mascara (-1°C)</option>
+            <option value="0">30 - Ouargla (0°C)</option>
+            <option value="5">31 - Oran (5°C)</option>
+            <option value="-2">32 - El Bayadh (-2°C)</option>
+            <option value="2">33 - Illizi (2°C)</option>
+            <option value="-1">34 - Bordj Bou Arreridj (-1°C)</option>
+            <option value="5">35 - Boumerdès (5°C)</option>
+            <option value="5">36 - El Tarf (5°C)</option>
+            <option value="2">37 - Tindouf (2°C)</option>
+            <option value="-1">38 - Tissemsilt (-1°C)</option>
+            <option value="0">39 - El Oued (0°C)</option>
+            <option value="-1">40 - Khenchela (-1°C)</option>
+            <option value="-1">41 - Souk Ahras (-1°C)</option>
+            <option value="5">42 - Tipaza (5°C)</option>
+            <option value="-1">43 - Mila (-1°C)</option>
+            <option value="5">44 - Aïn Defla (5°C)</option>
+            <option value="-1">45 - Naâma (-1°C)</option>
+            <option value="5">46 - Aïn Témouchent (5°C)</option>
+            <option value="0">47 - Ghardaïa (0°C)</option>
+            <option value="-1">48 - Relizane (-1°C)</option>
+            <option value="2">49 - El M'Ghair (2°C)</option>
+            <option value="2">50 - El Meniaa (2°C)</option>
+            <option value="-1">51 - Ouled Djellal (-1°C)</option>
+            <option value="-1">52 - Bordj Baji Mokhtar (-1°C)</option>
+            <option value="2">53 - Béni Abbès (2°C)</option>
+            <option value="0">54 - Timimoun (0°C)</option>
+            <option value="2">55 - Touggourt (2°C)</option>
+            <option value="2">56 - Djanet (2°C)</option>
+            <option value="-1">57 - In Salah (-1°C)</option>
+            <option value="2">58 - In Guezzam (2°C)</option>
+        </select>
+
+        <div class="grid-3">
+            <div>
+                <label>T/mini (°C)</label>
+                <input type="number" id="tmini" value="5" oninput="calculerDeltaT()">
+            </div>
+            <div>
+                <label>T/Idéal (°C)</label>
+                <input type="number" id="tideal" value="20" oninput="calculerDeltaT()">
+            </div>
+            <div>
+                <label>ΔT</label>
+                <input type="number" id="deltaT" value="15" readonly>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <label>Nom de la pièce</label>
+        <select id="nomPiece" onchange="ajusterTempParDefaut()">
+            <option value="Chambre1">Chambre 1</option>
+            <option value="Chambre2">Chambre 2</option>
+            <option value="Salon">Salon</option>
+            <option value="Cuisine">Cuisine</option>
+            <option value="Salle de bain">Salle de bain</option>
+        </select>
+        
+        <div class="grid-3">
+            <div>
+                <label>Long (m)</label>
+                <input type="number" id="long" step="0.1" placeholder="4" oninput="calculerDirect()">
+            </div>
+            <div>
+                <label>Larg (m)</label>
+                <input type="number" id="larg" step="0.1" placeholder="5" oninput="calculerDirect()">
+            </div>
+            <div>
+                <label>Haut (m)</label>
+                <input type="number" id="haut" step="0.1" value="2.8" oninput="calculerDirect()">
+            </div>
+            <div>
+                <label>Surface (m²)</label>
+                <input type="text" id="displaySurface" value="0.00" readonly>
+            </div>
+            <div>
+                <label>Volume (m³)</label>
+                <input type="text" id="displayVolume" value="0.00" readonly>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="flex: 2; min-width: 150px;">
+                <label>Coeff. Isolation</label>
+                <select id="coeff">
+                    <option value="1.2">1.2 (Très bon)</option>
+                    <option value="1.7" selected>1.7 (Moyen)</option>
+                    <option value="2.1">2.1 (Faible)</option>
+                </select>
+            </div>
+            <div style="flex: 1; min-width: 100px;">
+                <label>W/Élément</label>
+                <input type="number" id="pElement" value="140">
+            </div>
+        </div>
+
+        <button onclick="ajouterPiece()">CALCULER & AJOUTER</button>
+    </div>
+
+    <div id="listePieces"></div>
+
+    <div class="card result-box">
+        <p>Puissance Totale Appartement</p>
+        <h1 id="totalWatt" style="margin: 5px 0;">0 W</h1>
+        <p id="totalElements">Nombre d'éléments total : 0</p>
+        <div style="margin-top:15px; border-top: 1px solid rgba(255,255,255,0.3); padding-top:10px;">
+            <strong>CHAUDIÈRE CONSEILLÉE :</strong>
+            <h2 id="chaudiere" style="color: #f1c40f !important; border: none; margin-top: 10px;">--</h2>
+        </div>
+    </div>
+
+<script>
+    function actualiserTemp() {
+        const select = document.getElementById('wilaya');
+        document.getElementById('tmini').value = select.value;
+        calculerDeltaT();
+    }
+
+    function calculerDeltaT() {
+        const tmini = parseFloat(document.getElementById('tmini').value) || 0;
+        const tideal = parseFloat(document.getElementById('tideal').value) || 0;
+        document.getElementById('deltaT').value = tideal - tmini;
+    }
+
+    function calculerDirect() {
+        const L = parseFloat(document.getElementById('long').value) || 0;
+        const l = parseFloat(document.getElementById('larg').value) || 0;
+        const h = parseFloat(document.getElementById('haut').value) || 0;
+
+        const surface = L * l;
+        const volume = surface * h;
+
+        document.getElementById('displaySurface').value = surface.toFixed(2);
+        document.getElementById('displayVolume').value = volume.toFixed(2);
+    }
+    
+    function ajusterTempParDefaut() {
+        const piece = document.getElementById('nomPiece').value;
+        let temp = 20;
+        if (piece === "Salle de bain") temp = 22;
+        if (piece === "Cuisine") temp = 18;
+        document.getElementById('tideal').value = temp;
+        calculerDeltaT();
+    }
+
+    let totalW = 0;
+    let totalE = 0;
+
+    function ajouterPiece() {
+        const nom = document.getElementById('nomPiece').value;
+        const L = parseFloat(document.getElementById('long').value);
+        const l = parseFloat(document.getElementById('larg').value);
+        const h = parseFloat(document.getElementById('haut').value);
+        const dt = parseFloat(document.getElementById('deltaT').value);
+        const coeff = parseFloat(document.getElementById('coeff').value);
+        const pElem = parseFloat(document.getElementById('pElement').value);
+        
+        if(!L || !l || !h) {
+            alert("Veuillez entrer les dimensions de la pièce.");
+            return;
+        }
+
+        const surface = L * l;
+        const volume = surface * h;
+        const puissance = volume * coeff * dt;
+        const nbElements = Math.ceil(puissance / pElem);
+
+        totalW += puissance;
+        totalE += nbElements;
+
+        const liste = document.getElementById('listePieces');
+        const item = document.createElement('div');
+        item.className = 'piece-item';
+        item.innerHTML = `
+            <div>
+                <strong style="color:#007B83">${nom}</strong><br>
+                <small>S: ${surface.toFixed(2)} m² | V: ${volume.toFixed(2)} m³</small>
+            </div>
+            <div style="text-align:right">
+                <span class="badge">${nbElements} Éléments</span><br>
+                <small style="color:#007B83; font-weight:bold">${Math.round(puissance)} W</small>
+            </div>
+        `;
+        liste.prepend(item);
+
+        document.getElementById('totalWatt').innerText = Math.round(totalW) + " W";
+        document.getElementById('totalElements').innerText = "Nombre d'éléments total : " + totalE;
+
+        let recommandation = "24 kW";
+        if(totalW > 20000) recommandation = "30-35 kW";
+        if(totalW > 35000) recommandation = "Haute Puissance (>40kW)";
+        document.getElementById('chaudiere').innerText = recommandation;
+    }
+
+    // Initialisation
+    calculerDeltaT();
+</script>
+</body>
+</html>
